@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter to WebP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image Converter to WebP</h1>
+        <div class="cadr">
+          <div class="imjsrc">
+             <button id="fileButton">Choose File</button>
+             <span id="fileName">No file chosen</span>
+             <input type="file" id="imageInput" accept="image/*" style="display: none;">
+             <img id="imagePreview" src="#" alt="Image preview" style="max-width: 200px; max-height: 200px; margin-top: 10px; display: none;">
+             <button id="convertButton">Convert to WebP</button>
+          </div>
+          <div class="resultat" id="result">
+             <p>The converted image will appear here.</p>
+             <img id="imageresult" src="#" alt="Image preview" style="max-width: 200px; max-height: 200px; margin-top: 10px; display: none;">
+             <button id="downloadButton">Download WebP image</button>
+          </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
