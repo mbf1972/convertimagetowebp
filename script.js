@@ -78,8 +78,6 @@ document.getElementById('convertButton').addEventListener('click', async () => {
     }
 
     const file = imageInput.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
 
     resultP.textContent = 'Converting...';
     resultP.style.color = 'black';
@@ -87,42 +85,67 @@ document.getElementById('convertButton').addEventListener('click', async () => {
     imageResult.style.display = 'none';
 
     try {
-        const response = await fetch('/convert', {
-            method: 'POST',
-            body: formData
-        });
+        // Client-side conversion using Canvas API
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-        if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
+        img.onload = () => {
+            // Resize if necessary
+            const maxWidth = 1920;
+            let { width, height } = img;
 
-            // Update the result paragraph with success message
-            resultP.textContent = 'Conversion successful! The image has been converted to WebP format.';
-            resultP.style.color = 'green';
-
-            // Show the converted image
-            imageResult.src = url;
-            imageResult.style.display = 'block';
-
-            // Enable download button and set its href
-            downloadButton.href = url;
-            downloadButton.download = 'converted.webp';
-            downloadButton.disabled = false;
-
-            // Store the result URL for cleanup
-            if (currentResultUrl) {
-                URL.revokeObjectURL(currentResultUrl);
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
             }
-            currentResultUrl = url;
-        } else {
-            const errorText = await response.text();
-            resultP.textContent = `Conversion error: ${errorText}`;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw and convert to WebP
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+
+                // Update the result paragraph with success message
+                resultP.textContent = 'Conversion successful! The image has been converted to WebP format.';
+                resultP.style.color = 'green';
+
+                // Show the converted image
+                imageResult.src = url;
+                imageResult.style.display = 'block';
+
+                // Enable download button and set its href
+                downloadButton.href = url;
+                downloadButton.download = 'converted.webp';
+                downloadButton.disabled = false;
+
+                // Store the result URL for cleanup
+                if (currentResultUrl) {
+                    URL.revokeObjectURL(currentResultUrl);
+                }
+                currentResultUrl = url;
+            }, 'image/webp', 0.7); // quality 70%
+        };
+
+        img.onerror = () => {
+            resultP.textContent = 'Error loading image.';
             resultP.style.color = 'red';
             downloadButton.disabled = true;
             imageResult.style.display = 'none';
-        }
+        };
+
+        // Load the image from the file
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
     } catch (error) {
-        resultP.textContent = 'Network error: ' + error.message;
+        resultP.textContent = 'Conversion error: ' + error.message;
         resultP.style.color = 'red';
         console.error('Erreur:', error);
         downloadButton.disabled = true;
