@@ -142,4 +142,18 @@ document.getElementById('convertButton').addEventListener('click', () => {
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+
+    // Add error handling for canvas.toBlob
+    canvas.toBlob = canvas.toBlob || function(callback, type, quality) {
+        // Fallback for browsers that don't support toBlob
+        const dataURL = canvas.toDataURL(type || 'image/webp', quality || 0.7);
+        const byteString = atob(dataURL.split(',')[1]);
+        const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        callback(new Blob([ab], {type: mimeString}));
+    };
 });
