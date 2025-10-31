@@ -68,7 +68,7 @@ document.getElementById('imageInput').addEventListener('change', (event) => {
     }
 });
 
-document.getElementById('convertButton').addEventListener('click', async () => {
+document.getElementById('convertButton').addEventListener('click', () => {
     const imageInput = document.getElementById('imageInput');
 
     if (imageInput.files.length === 0) {
@@ -84,71 +84,62 @@ document.getElementById('convertButton').addEventListener('click', async () => {
     downloadButton.disabled = true;
     imageResult.style.display = 'none';
 
-    try {
-        // Client-side conversion using Canvas API
-        const img = new Image();
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+    // Client-side conversion using Canvas API
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-        img.onload = () => {
-            // Resize if necessary
-            const maxWidth = 1920;
-            let { width, height } = img;
+    img.onload = () => {
+        // Resize if necessary
+        const maxWidth = 1920;
+        let { width, height } = img;
 
-            if (width > maxWidth) {
-                height = (maxWidth / width) * height;
-                width = maxWidth;
+        if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and convert to WebP
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+
+            // Update the result paragraph with success message
+            resultP.textContent = 'Conversion successful! The image has been converted to WebP format.';
+            resultP.style.color = 'green';
+
+            // Show the converted image
+            imageResult.src = url;
+            imageResult.style.display = 'block';
+
+            // Enable download button and set its href
+            downloadButton.href = url;
+            downloadButton.download = 'converted.webp';
+            downloadButton.disabled = false;
+
+            // Store the result URL for cleanup
+            if (currentResultUrl) {
+                URL.revokeObjectURL(currentResultUrl);
             }
+            currentResultUrl = url;
+        }, 'image/webp', 0.7); // quality 70%
+    };
 
-            canvas.width = width;
-            canvas.height = height;
-
-            // Draw and convert to WebP
-            ctx.drawImage(img, 0, 0, width, height);
-
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-
-                // Update the result paragraph with success message
-                resultP.textContent = 'Conversion successful! The image has been converted to WebP format.';
-                resultP.style.color = 'green';
-
-                // Show the converted image
-                imageResult.src = url;
-                imageResult.style.display = 'block';
-
-                // Enable download button and set its href
-                downloadButton.href = url;
-                downloadButton.download = 'converted.webp';
-                downloadButton.disabled = false;
-
-                // Store the result URL for cleanup
-                if (currentResultUrl) {
-                    URL.revokeObjectURL(currentResultUrl);
-                }
-                currentResultUrl = url;
-            }, 'image/webp', 0.7); // quality 70%
-        };
-
-        img.onerror = () => {
-            resultP.textContent = 'Error loading image.';
-            resultP.style.color = 'red';
-            downloadButton.disabled = true;
-            imageResult.style.display = 'none';
-        };
-
-        // Load the image from the file
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-
-    } catch (error) {
-        resultP.textContent = 'Conversion error: ' + error.message;
+    img.onerror = () => {
+        resultP.textContent = 'Error loading image.';
         resultP.style.color = 'red';
-        console.error('Erreur:', error);
         downloadButton.disabled = true;
         imageResult.style.display = 'none';
-    }
+    };
+
+    // Load the image from the file
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 });
