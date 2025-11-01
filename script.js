@@ -68,7 +68,7 @@ document.getElementById('imageInput').addEventListener('change', (event) => {
     }
 });
 
-document.getElementById('convertButton').addEventListener('click', () => {
+function convertImage() {
     const imageInput = document.getElementById('imageInput');
 
     if (imageInput.files.length === 0) {
@@ -156,4 +156,4 @@ document.getElementById('convertButton').addEventListener('click', () => {
         }
         callback(new Blob([ab], {type: mimeString}));
     };
-});
+}
