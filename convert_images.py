@@ -3,9 +3,9 @@ from PIL import Image
 import io
 
 # Dossier contenant les images à convertir
-input_folder = '.'
+input_folder = 'mockups'
 # Dossier où seront enregistrées les images converties
-output_folder = '.'
+output_folder = 'mockups'
 
 # Taille maximale souhaitée en octets (1 Mo)
 MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024
