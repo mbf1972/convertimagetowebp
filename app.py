@@ -19,6 +19,10 @@ def style_css():
 def script_js():
     with open('script.js', 'r') as f:
         return Response(f.read(), mimetype='application/javascript')
+@app.route('/mockups/<path:filename>')
+def serve_mockup(filename):
+    return send_file(os.path.join('mockups', filename))
+
 
 @app.route('/convert', methods=['POST'])
 def convert_image():
